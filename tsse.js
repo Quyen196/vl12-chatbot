@@ -42,24 +42,28 @@ Không bịa kiến thức ngoài nội dung đã cho.
 /* ====================== */
 
 app.post("/chat", async (req, res) => {
-  const question = req.body.question;
+  try {
+    const question = req.body.message;
 
-  const completion = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      {
-        role: "user",
-        content: `Dựa vào nội dung sau:\n${KNOWLEDGE}\n\nCâu hỏi: ${question}`
-      }
-    ]
-  });
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        {
+          role: "user",
+          content: `Dựa vào nội dung sau:\n${KNOWLEDGE}\n\nCâu hỏi: ${question}`
+        }
+      ]
+    });
 
-  res.json({
-    answer: completion.choices[0].message.content
-  });
-});
+    res.json({
+      reply: completion.choices[0].message.content
+    });
 
-app.listen(3000, () => {
-  console.log("Chatbot server running...");
+  } catch (error) {
+    console.error("CHAT ERROR:", error);
+    res.status(500).json({
+      reply: "Xin lỗi, chatbot đang gặp lỗi."
+    });
+  }
 });
